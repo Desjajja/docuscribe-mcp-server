@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "docuscribe": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/Users/desjajja/Projects/docuscribe-mcp",
+        "run",
+        "main.py"
+      ]
+    }
+  }
+}
