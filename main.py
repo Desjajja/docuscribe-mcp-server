@@ -2,12 +2,19 @@ import httpx
 import json
 from mcp.server.fastmcp import FastMCP
 from typing import Optional
+import os
+from dotenv import load_dotenv
+from urllib.parse import urljoin
 
+load_dotenv(dotenv_path=".env.local")
+backend_url = os.getenv("SERVER_BACKEND_URL", "http://localhost:9002")
 # Initialize FastMCP server
 mcp = FastMCP("Docuscribe")
 
-LIST_DOCS_URL = "http://localhost:9002/api/list_all_docs"  # New list endpoint
-BASE_FETCH_URL = "http://localhost:9002/api/fetch_doc_content"  # Base for fetch modes
+
+LIST_DOCS_URL = urljoin(backend_url, "/api/list_all_docs")  # New list endpoint
+BASE_FETCH_URL = urljoin(backend_url, "/api/fetch_doc_content")  # Base for fetch modes
+
 
 @mcp.tool()
 async def list_all_docs(limit: int = 100, offset: int = 0) -> str:
@@ -66,11 +73,17 @@ async def list_all_docs(limit: int = 100, offset: int = 0) -> str:
     async with httpx.AsyncClient() as client:
         resp = await client.get(url)
         if resp.status_code != 200:
-            return json.dumps({"error": "list_all_docs failed", "status": resp.status_code}, ensure_ascii=False)
+            return json.dumps(
+                {"error": "list_all_docs failed", "status": resp.status_code},
+                ensure_ascii=False,
+            )
         try:
             data = resp.json()
         except ValueError:
-            return json.dumps({"error": "Failed to decode JSON from list_all_docs"}, ensure_ascii=False)
+            return json.dumps(
+                {"error": "Failed to decode JSON from list_all_docs"},
+                ensure_ascii=False,
+            )
         # Return exactly what backend gave (plus normalized limit/offset echo for convenience)
         data["_request"] = {"limit": limit, "offset": offset}
         return json.dumps(data, ensure_ascii=False, indent=2)
@@ -148,7 +161,9 @@ async def fetch_doc_content(
     except Exception:
         documents = []
     if not any(d.get("id") == doc_uid for d in documents):
-        return json.dumps({"error": f"Document '{doc_uid}' not found"}, ensure_ascii=False)
+        return json.dumps(
+            {"error": f"Document '{doc_uid}' not found"}, ensure_ascii=False
+        )
 
     # Determine mode & build URL
     params = []
@@ -178,11 +193,17 @@ async def fetch_doc_content(
     async with httpx.AsyncClient() as client:
         resp = await client.get(url)
         if resp.status_code != 200:
-            return json.dumps({"error": "fetch_doc_content failed", "status": resp.status_code}, ensure_ascii=False)
+            return json.dumps(
+                {"error": "fetch_doc_content failed", "status": resp.status_code},
+                ensure_ascii=False,
+            )
         try:
             data = resp.json()
         except ValueError:
-            return json.dumps({"error": "Failed to decode JSON from fetch_doc_content"}, ensure_ascii=False)
+            return json.dumps(
+                {"error": "Failed to decode JSON from fetch_doc_content"},
+                ensure_ascii=False,
+            )
 
     document = data.get("document", {})
     meta = data.get("meta", {})
