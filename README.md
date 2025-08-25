@@ -102,6 +102,10 @@ Start the MCP server:
 python main.py
 ```
 
+## Real Use Cases
+<img width="1582" height="952" alt="image" src="https://github.com/user-attachments/assets/727e96f0-680b-4007-aad0-a6baecafdd14" />
+
+
 ## Notes
 - Ensure the backend server is running at the URL specified in `.env.local`.
 - Use `list_all_docs` to retrieve document IDs before calling `fetch_doc_content`.
